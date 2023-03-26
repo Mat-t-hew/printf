@@ -1,60 +1,46 @@
-#include "main.h"
-
-void print_buffer(char buffer[], int *buff_ind);
+#include "holberton.h"
 
 /**
- * _printf - Printf function
- * @format: format.
- * Return: Printed chars.
+ * _printf - A printf clone
+ * @format: const pointer to a char - % include formats
+ * Return: number of characters printed.
  */
+
 int _printf(const char *format, ...)
 {
-int i, printed = 0, printed_chars = 0;
-int flags, width, precision, size, buff_ind = 0;
-va_list list;
-char buffer[BUFF_SIZE];
-if (format == NULL)
-return (-1);
-va_start(list, format);
-for (i = 0; format && format[i] != '\0'; i++)
-{
-if (format[i] != '%')
-{
-buffer[buff_ind++] = format[i];
-if (buff_ind == BUFF_SIZE)
-print_buffer(buffer, &buff_ind);
-/* write(1, &format[i], 1);*/
-printed_chars++;
-}
-else
-{
-print_buffer(buffer, &buff_ind);
-flags = get_flags(format, &i);
-width = get_width(format, &i, list);
-precision = get_precision(format, &i, list);
-size = get_size(format, &i);
-++i;
-printed = handle_print(format, &i, list, buffer,
-flags, width, precision, size);
-if (printed == -1)
-return (-1);
-printed_chars += printed;
-}
-}
-print_buffer(buffer, &buff_ind);
-va_end(list);
-return (printed_chars);
-}
+	int i = 0, *count, *count3;
+	int ctbuffer[2];
+	int ctbuffer3[2];
+	char *copyfmt;
+	char copyarray[10000];
+	va_list args;
 
-/**
- * print_buffer - Prints the contents of the buffer if it exists.
- * @buffer: Array of chars
- * @buff_ind: Index at which to add next char, represents the length.
- */
-
-void print_buffer(char buffer[], int *buff_ind)
-{
-if (*buff_ind > 0)
-write(1, &buffer[0], *buff_ind);
-*buff_ind = 0;
+	count = &ctbuffer[0];
+	count3 = &ctbuffer3[0];
+	count[0] = 0;
+	count[1] = -1;
+	if (format != NULL)
+	{
+		count[1] = 0;
+		copyfmt = _strcpy(copyarray, format);
+		va_start(args, format);
+		while (copyfmt[i] != '\0')
+		{
+			if (copyfmt[i] == '%')
+			{
+				count3 = print_formats(i, copyfmt, args);
+				if (count3[1] == -1)
+				return (-1);
+				count[1] += count3[1];
+				i += count3[0];
+			}
+			else
+			{
+				count[1] += _putchar(&copyfmt[i]);
+			}
+			i++;
+		}
+		va_end(args);
+	}
+return (count[1]);
 }
